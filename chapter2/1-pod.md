@@ -117,23 +117,19 @@ PodCondition 배열의 각 요소는 다음 여섯 가지 필드를 가질 수 �
 
 ## 컨테이너 프로브(probe)
 
-[프로브](/docs/reference/generated/kubernetes-api/{{< param "version" >}}/#probe-v1-core)는
-컨테이너에서 [kubelet](/docs/admin/kubelet/)에 의해 주기적으로 수행되는 진단(diagnostic)이다.
+프로브는 컨테이너에서 kubelet에 의해 주기적으로 수행되는 진단(diagnostic)이다.
 진단을 수행하기 위해서,
 kubelet은 컨테이너에 의해서 구현된
 [핸들러](https://godoc.org/k8s.io/kubernetes/pkg/api/v1#Handler)를 호출한다.
 핸들러에는 다음과 같이 세 가지 타입이 있다.
 
-* [ExecAction](/docs/reference/generated/kubernetes-api/{{< param "version" >}}/#execaction-v1-core)
-  은 컨테이너 내에서 지정된 명령어를 실행한다.
+* `ExecAction`은 컨테이너 내에서 지정된 명령어를 실행한다.
   명령어가 상태 코드 0으로 종료되면 진단이 성공한 것으로 간주한다.
 
-* [TCPSocketAction](/docs/reference/generated/kubernetes-api/{{< param "version" >}}/#tcpsocketaction-v1-core)
-  은 지정된 포트에서 컨테이너의 IP주소에 대해 TCP 검사를 수행한다.
+* `TCPSocketAction`은 지정된 포트에서 컨테이너의 IP주소에 대해 TCP 검사를 수행한다.
   포트가 활성화되어 있다면 진단이 성공한 것으로 간주한다.
 
-* [HTTPGetAction](/docs/reference/generated/kubernetes-api/{{< param "version" >}}/#httpgetaction-v1-core)
-  은 지정한 포트 및 경로에서 컨테이너의 IP주소에
+* `HTTPGetAction`은 지정한 포트 및 경로에서 컨테이너의 IP주소에
   대한 HTTP Get 요청을 수행한다. 응답의 상태 코드가 200보다 크고 400보다 작으면
   진단이 성공한 것으로 간주한다.
 
@@ -157,7 +153,13 @@ kubelet은 실행 중인 컨테이너들에 대해서 선택적으로 두 가지
    초기 지연 이전의 기본 상태는 `Failure`이다. 만약 컨테이너가 준비성 프로브를
    지원하지 않는다면, 기본 상태는 `Success`이다.
 
-### 언제 livenessProbe 또는 readinessProbe를 사용해야 하는가?
+### 언제 livenessProbe(활성 프로브) 또는 readinessProbe(준비성 프로브)를 사용해야 하는가?
+
+언뜻 보면 `livenessProbe` 와 `readinessProbe`가 비슷해 보이지만 사용처는 약간 다르다. 
+
+
+--> 확인 필요 
+이 두가지는 모두 kubelet이 해당 pod내의 container의 상태를 체크하지만 livenessProbe는 readiness
 
 만약 컨테이너 속 프로세스가 어떠한 이슈에 직면하거나 건강하지 못한
 상태(unhealthy)가 되는 등 프로세스 자체의 문제로 중단될 수 있더라도, 활성 프로브가
@@ -185,15 +187,10 @@ kubelet은 실행 중인 컨테이너들에 대해서 선택적으로 두 가지
 남아있는다.
 
 
+------------------------------------
+
 
 ## 파드 및 컨테이너 상태
-
-파드 및 컨테이너 상태에 대한 자세한 정보는,
-[PodStatus](/docs/reference/generated/kubernetes-api/{{< param "version" >}}/#podstatus-v1-core) 및
-[ContainerStatus](/docs/reference/generated/kubernetes-api/{{< param "version" >}}/#containerstatus-v1-core)를 참조하면 된다.
-파드의 상태로서 보고되는 정보는
-현재의 [ContainerState](/docs/reference/generated/kubernetes-api/{{< param "version" >}}/#containerstatus-v1-core)에
-의존적이라는 점에 유의하길 바란다.
 
 ## 컨테이너 상태
 
@@ -236,40 +233,37 @@ PodSpec은 항상(Always), 실패 시(OnFailure), 절대 안 함(Never) 값으�
 기본 값은 항상(Always)이다.
 `restartPolicy`는 파드 내의 모든 컨테이너들에 적용된다. `restartPolicy`는
 같은 노드에 있는 kubelet에 의한 컨테이너들의 재시작에만 관련되어 있다.
-kubelet에 의해서 재시작되는 종료된 컨테이너는
-5분으로 제한된 지수 백-오프 지연(10초, 20초, 40초 ...)을 기준으로 재시작되며,
-10분의 성공적 실행 후에 재설정된다.
-[파드 문서](/docs/user-guide/pods/#durability-of-pods-or-lack-thereof)에서 의논된 바와 같이,
-파드는 일단 한 노드에 바운드되고 나면, 다른 노드에 다시 바운드되지 않는다.
+kubelet에 의해서 재시작되는 종료된 컨테이너는 10초, 20초, 40초... 순으로 배수로 증가하면서 5분까지 재시작을 시도한다. 
+
 
 
 ## 파드의 일생(lifetime)
 
 일반적으로, 파드는 누군가 파드를 파괴할 때까지 사라지지 않는다.
-그것은 주로 사람이나 컨트롤러에 의해서 일어난다.
+주로 사람이나 컨트롤러에 의해서 파드의 파괴가 일어난다.
 이 법칙에 대한 유일한 예외는 일정 기간(마스터의 `terminated-pod-gc-threshold`에 의해 결정되는)
 이상 파드의 `phase`가 Succeeded 또는 Failed라서 파드가 만료되고 자동적으로 파괴되는 경우이다.
 
 세 가지 유형의 컨트롤러를 사용할 수 있다.
 
-- 배치 연산과 같이, 종료가 예상되는 파드를 위해서는 [잡](/docs/concepts/jobs/run-to-completion-finite-workloads/)을
+- 배치 연산과 같이, 종료가 예상되는 파드를 위해서는 `Job`컨트롤러를
   사용하길 바란다. 잡은 `restartPolicy`가 실패 시(OnFailure) 또는 절대 안 함(Never)으로
   지정된 경우에 적합하다.
 
-- 웹 서버와 같이, 종료가 예상되지 않는 파드에 대해서는
-  [레플리케이션 컨트롤러](/docs/concepts/workloads/controllers/replicationcontroller/),
-  [레플리카 셋](/docs/concepts/workloads/controllers/replicaset/), 또는
-  [디플로이먼트](/docs/concepts/workloads/controllers/deployment/)를 사용하길 바란다.
+- 웹 서버와 같이, 종료가 예상되지 않는 파드에 대해서는 `Replication Controller`, `ReplicatSet`, `Deployment` 컨트롤러를 사용하기 바란다. 
   레플리케이션 컨트롤러는 `restartPolicy`가 항상(Always)으로 지정된
   경우에만 적합하다.
 
-- 머신 당 하나씩 실행해야하는 파드를 위해서는 [데몬 셋](/docs/concepts/workloads/controllers/daemonset/)을 사용하길
+- 머신 당 하나씩 실행해야하는 파드를 위해서는 `DamonSet`을 사용하길
   바란다. 왜냐하면 데몬 셋은 특정 머신 전용 시스템 서비스(machine-specific system service)를 제공하기 때문이다.
 
 세 가지 모든 컨트롤러 유형은 PodTemplate을 가지고 있다. 파드를
 직접적으로 생성하는 것 보다는, 적절한 컨트롤러를 생성하고 컨트롤러가 파드를
 생성하도록 하는 것이 추천된다. 그 이유는 파드
 혼자서는 머신의 실패에 탄력적(resilient)이지 않지만, 컨트롤러는 탄력적이기 때문이다.
+
+> 실습 추가 
+
 
 만약 노드가 죽거나 다른 클러스터의 다른 노드들로부터 연결이 끊기면, 쿠버네티스는
 잃어버린 노드에 있는 모든 파드의 `phase`를 실패된(Failed)으로 설정하는 정책을 적용한다.
@@ -368,3 +362,337 @@ spec:
 * [컨테이너 라이프사이클 후크(hook)](/docs/concepts/containers/container-lifecycle-hooks/)에 대해 더 배우기.
 
 
+
+
+### YAML Descript와 친해지기 
+앞 세션에서 Deploy했던 Pod를 찾아서 Pod의 속성을 yaml 파일 형태로 요청한다. 
+
+```
+$ kubeclt get po
+```
+여기서 찾아진 Pod 이름을 활용
+
+```
+$ kubectl get po kubia-zxzij -o yaml
+```
+![](img/1-1.png)
+![](img/1-2.png)
+
+제일 위에는 API 버전과 Object와 종류가 나온다. 
+```yaml
+apiVersion: v1
+kind: Pod
+```
+
+- Pod Metadata(name, labels, annotations)
+```yaml
+metadata:
+  annotations:
+    kubernetes.io/created-by: ...
+  creationTimestamp: 2016-03-18T12:37:50Z
+  generateName: kubialabels:
+    run: kubia
+  name: kubia-zxzij
+  namespace: default
+  resourceVersion: "294"
+  selfLink: /api/v1/namespaces/default/pods/kubia-zxzij
+  uid: 3a564dc0-ed06-11e5-ba3b-42010af00004
+```
+  - Pod Specification(Pod의 Container 리스트, Volume등) 
+  )
+```yaml
+spec:
+  containers:
+  - image: luksa/kubia
+    imagePullPolicy: IfNotPresent
+    name: kubia
+    ports:
+  - containerPort: 8080
+      protocol: TCP
+    resources:
+      requests:
+        cpu: 100m
+        terminationMessagePath: /dev/termination-log
+        volumeMounts:
+        - mountPath: /var/run/secrets/k8s.io/servacc
+          name: default-token-kvcqa
+          readOnly: true
+        dnsPolicy: ClusterFirst
+        nodeName: gke-kubia-e8fe08b8-node-txje
+        restartPolicy: Always
+        serviceAccount: default
+        serviceAccountName: default
+        terminationGracePeriodSeconds: 30
+        volumes:
+          - name: default-token-kvcqa
+            secret:
+              secretName: default-token-kvcqa
+```
+- Pod와 내부 컨테이너의 생태정보
+```yaml
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: null
+    status: "True"
+    type: Ready
+  containerStatuses:
+  - containerID: docker://f0276994322d247ba...
+    image: luksa/kubia
+    imageID: docker://4c325bcc6b40c110226b89fe...
+    lastState: {}
+    name: kubia
+    ready: true
+    restartCount: 0
+    state:
+      running:
+       startedAt: 2016-03-18T12:46:05Z
+  hostIP: 10.132.0.4
+  phase: Running
+  podIP: 10.0.2.3
+  startTime: 2016-03-18T12:44:32Z
+```
+
+### 첫번째 Pod yaml 생성
+
+아래 내용을 kubia-manual.yaml로 저장한다.
+>yaml은 indentation(들여쓰기)에 주의해야 한다.  
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kubia-manual
+spec:
+  containers:
+  - image: luksa/kubia
+    name: kubia
+    ports:
+    - containerPort: 8080
+      protocol: TCP
+```
+  - kubectl -f로 yaml 적용하기
+
+```shell
+$ kubectl create -f kubia-manual.yaml
+pod "kubia-manual" created
+```
+
+ - 생성한 pod의 전체 definition 조회
+```shell
+$ kubectl get po kubia-manual -o yaml   # yaml 양식
+$ kubectl get po kubia-manual -o json   # json 양식
+```
+
+### Application log 보기
+docker는 logs 서브 명령을 이용해 /dev/STDOUT과 /dev/STDERR로 전달되는 application의 log를 조회할 수 있다.
+```shell
+$ docker logs <container id>
+```
+
+k8s의 kubectl도 비슷한 방법으로 pod의 log를 조회할 수 있다.   
+
+```shell
+$ kubectl logs kubia-manual
+Kubia server starting...
+```
+현재는 접속을 안해서 로그가 없을 것이다. 
+
+> 참조 : 컨테이너 log는 Daily로 rotate되며 log 파일의 크기가 10MB에 도달해도 rotate된다. 따라서 kubectl logs 커멘드로는 이전에 rotate이후의 내용만 조회 가능하다.  
+
+### Port forward를 이용한 Pod 접속
+
+아래와 같이 `port-forward` 명령을 이용 local machine에서 pod로 port forwarding을 통해 직접 접속이 가능하다. 
+
+```shell
+$ kubectl port-forward kubia-manual 8888:8080
+... Forwarding from 127.0.0.1:8888 -> 8080
+... Forwarding from [::1]:8888 -> 8080
+
+```
+ - 접속 확인
+```shell
+$ curl localhost:8888
+You’ve hit kubia-manual
+```
+
+### Label을 이용한 Pod 구조화
+
+마이크로서비스 기반의 운영환경에서는 아래 그림처럼 굉장히 많은 Pod가 배포되게 된다. 
+
+![](img/1-4.png)
+이런 환경에서 Label을 이용해서 Pod를 그룹화할 수 있다. 
+
+#### 라벨 소개
+라벨은 포드만이 아니라 쿠버네티스 모든 리소스를 그룹화하는 간단하지만 강력한 기능이다. 라벨은 리소스에 첨부하는 `key/value`쌍이다. 
+
+예를 들어 시스템을 `app`(application종류) `rel`(release)라는 두개의 라벨을 이용해서 다음과 같이 구조화 할수 있다.
+
+![](img/1-5.png)
+
+### 포드를 만들 때 라벨 지정하기
+아래와 같이 2개의 Label을 추가해서 파드를 생성한다. 
+`creation_method=manaul` `env=prod`를 추가시켰다.
+
+```yaml
+#kubia-manual-with-label.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kubia-manual-v2
+  labels:
+    creation_method: manual
+    env: prod
+spec:
+  containers:
+  - image: luksa/kubia
+    name: kubia
+    ports:
+    - containerPort: 8080
+      protocol: TCP
+```
+
+ -  파드 생성
+```shell
+$ kubectl create -f kubia-manual-with-labels.yaml
+pod "kubia-manual-v2" created
+```
+
+ - --show-labels로 라벨 조회
+```shell
+$ kubectl get po --show-labels
+NAME READY STATUS RESTARTS AGE LABELS
+kubia-manual 1/1 Running 0 16m <none>
+kubia-manual-v2 1/1 Running 0 2m creat_method=manual,env=prod
+kubia-zxzij 1/1 Running 0 1d run=kubia
+```
+
+ - -L 스위치를 이용해 라벨을 지정
+```shell
+$ kubectl get po -L creation_method,env
+NAME READY STATUS RESTARTS AGE CREATION_METHOD ENV
+kubia-manual 1/1 Running 0 16m <none> <none>
+kubia-manual-v2 1/1 Running 0 2m manual prod
+kubia-zxzij 1/1 Running 0 1d <none> <none>
+```
+ - 라벨 수정 & 조회
+> 라벨 변경엔 --overwrite 옵션을 이용해야 한다.
+```shell
+$ kubectl label po kubia-manual-v2 env=debug --overwrite
+pod "kubia-manual-v2" labeled
+
+
+$ kubectl get po -L creation_method,env
+NAME READY STATUS RESTARTS AGE CREATION_METHOD ENV
+kubia-manual 1/1 Running 0 16m manual <none>
+kubia-manual-v2 1/1 Running 0 2m manual debug
+kubia-zxzij 1/1 Running 0 1d <none> <none>
+```
+
+### label selector를 이용한 subset 나열
+
+
+```shell
+$ kubectl get po -l creation_method=manual
+NAME READY STATUS RESTARTS AGE
+kubia-manual 1/1 Running 0 51m
+kubia-manual-v2 1/1 Running 0 37m
+```
+
+이 Label selector기능을 이용하는 특정 pod만 변경을 적용하는 것이 가능 
+
+![](img/1-7.png)
+
+### Label과 Selector를 이용해서 포드 스케줄링 조절하기
+
+예를 들어 Machine Learning을 실행하는 Pod는 GPU가 있는 노드에 배정하고 싶은경우 이 라벨과 셀렉터를 이용하면 가능하다. 
+
+우선 임의의 노드에 `gpu=true` 라벨을 추가한다. 
+
+
+```shell
+$ kubectl get node  #여기서 나온 Node Name을 아래에 예제에서 사용한다. 
+....
+
+$ kubectl label node gke-kubia-85f6-node-0rrx gpu=true
+node "gke-kubia-85f6-node-0rrx" labeled
+
+#노드의 label 확인
+$ kubectl get nodes -l gpu=true
+NAME STATUS AGE
+gke-kubia-85f6-node-0rrx Ready 1d
+```
+
+ - 특정 노드에 포드 스케줄링
+밑에 yaml 처럼 `nodeSelector`에 `gpu=true`라벨 추가
+```yaml
+#kubia-gpu.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kubia-gpu
+spec:
+  nodeSelector:
+    gpu: "true"
+  containers:
+  - image: luksa/kubia
+    name: kubia
+
+```
+
+```shell
+#포드 생성
+$ kubctl creat -f kubia-gpu.yaml
+#포드 확인
+$ kubectl get pod
+```
+
+
+### Namespace를 이용한 Resource Grouping
+
+네임스페이스는 복수의 팀이나, 프로젝트에 걸쳐서 많은 사용자가 있는 환경에서 사용하도록 만들어졌다. 사용자가 거의 없거나, 수 십명 정도가 되는 경우에는, 네임스페이스를 고려할 필요가 전혀 없다. 네임스페이스가 제공하는 기능이 필요할 때 사용하도록 하자.
+
+네임스페이스는 이름의 범위를 제공한다. 리소스의 이름은 네임스페이스 내에서 유일해야하지만, 네임스페이스를 통틀어서 유일할 필요는 없다.
+
+네임스페이스는 클러스터 자원을 (리소스 쿼터를 통해) 복수의 사용자 사이에서 나누는 방법이다.
+
+#### namespace 와 그 namespace에 속한 pod
+
+```shell
+$ kubectl get ns
+NAME LABELS STATUS AGE
+default <none> Active 1h
+kube-public <none> Active 1h
+kube-system <none> Active 1h
+
+```
+
+일반적으로 `kubectl get po`를 하면 `default` namespace의 pod를 반환한다. 
+
+```shell
+$ kubectl get po --namespace kube-system
+NAME READY STATUS RESTARTS AGE
+fluentd-cloud-kubia-e8fe-node-txje 1/1 Running 0 1h
+heapster-v11-fz1ge 1/1 Running 0 1h
+kube-dns-v9-p8a4t 0/4 Pending 0 1h
+kube-ui-v4-kdlai 1/1 Running 0 1h
+l7-lb-controller-v0.5.2-bue96 2/2 Running 92 1h
+```
+위의 예는 system pod라는 kube-system namespace에 속한 pod들이다. 
+
+### Pod의 Stop & Delete
+ - 포드 삭제 방법
+
+```shell
+$ kubectl delete po kubia-gpu
+pod "kubia-gpu" deleted
+```
+포드를 삭제하면 포드내의 모든 컨테이너가를 종료하도록 쿠버네티스가 지시를 하게 된다. 쿠버네티스는 프로세스에 `SIGTERM`신호를 보내고 정상적으로 종료되도록 일정 시간(default 30초)을 대기한다. 이 시간내에 종료되지 않으면 `SIGKILL`을 통해 강제 종료된다. 
+
+ #### 라벨 셀렉터를 사용한 포드 삭제
+
+라벨 셀렉터를 사용하면 여러 포드를 한꺼번에 삭제할 수 있다. 
+ ```shell
+ $ kubectl delete po -l creation_method=manual
+pod "kubia-manual" deleted
+pod "kubia-manual-v2" deleted
+ ```
