@@ -1,19 +1,39 @@
+## gcloud SDK 설치
 
-
-
-### minikube 사용
-
-minikube 시작
+google의 Managed kubernetes Service은 Google Kuberentes Engine을 사용하기 위해서 아래와 같이 입력한다. 
 
 ```shell
-sudo minikube start --vm-driver=none --apiserver-ips 127.0.0.1 --apiserver-name localhost
+
+# Create environment variable for correct distribution
+export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+
+# Add the Cloud SDK distribution URI as a package source
+echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
+# Import the Google Cloud Platform public key
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+# Update the package list and install the Cloud SDK
+sudo apt-get update && sudo apt-get install google-cloud-sdk
+
 ```
 
-minikube 중지
+## SDK 초기화
 ```shell
-sudo minikube stop
-```
+$ gcloud init
 
-### Reference 
- - minikube in linux : https://medium.com/@nieldw/running-minikube-with-vm-driver-none-47de91eab84c
- 
+```
+![](./chapter1/img/SDK-1.png)
+![](./chapter1/img/SDK-2.png)
+
+
+### SDK 설치 확인
+```shell
+$ gcloud config list
+#설정 내용 확인
+$ gcloud info
+
+```
+![](./chapter1/img/SDK-3.png)
+
+### 참조 : https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu?authuser=2&hl=ko
