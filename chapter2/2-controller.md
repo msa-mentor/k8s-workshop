@@ -70,7 +70,7 @@ spec:
 
 ``` shell
 # rc 생성
-$ kubectl create -f https://raw.githubusercontent.com/DannyKang/k8s-Workshop/master/chapter2/kubia-rc.yaml
+$ kubectl create -f kubia-rc.yaml
 ```
 
 #### 2.1.2.2 Replication Controller 실행확인
@@ -489,6 +489,14 @@ spec:
 
 실행하면 포드가 하나씩 순서대로 실행되는걸 볼 수 있다. 기존과는 다르게 포드 이름에 uuid형식의 접미사가 붙는게 아니라 web이라는 이름 뒤에 -0, -1, -2 이렇게 숫자가 순서대로 붙는걸 볼 수 있다.   
 포드가 실행될때는 작은 숫자부터 순서대로 0, 1, 2번이 실행되고 삭제될때는 반대로 큰숫자가 붙은 포드부터 2, 1, 0의 순서로 삭제된다. 순서대로 실행되어야 하기 때문에 0번이 정상적으로 실행되지 않았다면 1번은 실행되지 않는다. 마찬가지로 1번이 실행되지 않았다면 2번 또한 실행되지 않는다. 실행중인 스테이트풀셋의 replicas를 줄이면 가장 큰 2번부터 먼저 삭제된다. 스테이트풀셋의 기본동작은 이렇게 순서대로 포드를 관리하는 것이지만 그 옵션은 .spec.podManagementPolicy에서 변경할수도 있다. 여기서 기본옵션은 OrderedReady라서 포드를 순서대로 관리하게 하고, 이걸 Parallel으로 변경하면 포드들이 순서없이 병렬로 실행되거나 종료되게 할 수 있다.
+
+
+## Chapter 2 Contents
+ - ### [0. Concept](0-concept.md)
+ - ### [1. POD](1-pod.md)
+ - ### [2. Controller](2-controller.md)
+ - ### [3. Service](3-service.md)
+ - ### [4. Volume](4.volume.md)
 
 
 ### Reference

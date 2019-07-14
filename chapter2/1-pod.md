@@ -353,7 +353,7 @@ spec:
   - kubectl -f로 yaml 적용하기
 
 ```shell
-$ kubectl create -f https://raw.githubusercontent.com/DannyKang/k8s-Workshop/master/chapter2/kubia-manual.yaml
+$ kubectl create -f kubia-manual.yaml
 pod "kubia-manual" created
 ```
 
@@ -560,6 +560,14 @@ pod "kubia-gpu" deleted
 pod "kubia-manual" deleted
 pod "kubia-manual-v2" deleted
  ```
+
+## Chapter 2 Contents
+ - ### [0. Concept](0-concept.md)
+ - ### [1. POD](1-pod.md)
+ - ### [2. Controller](2-controller.md)
+ - ### [3. Service](3-service.md)
+ - ### [4. Volume](4.volume.md)
+
 
 ### Reference
  - Kubernetes in Action

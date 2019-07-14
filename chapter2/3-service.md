@@ -61,7 +61,7 @@ spec:
 
 ```bash
 # svc 생성
-$ kubectl create -f https://raw.githubusercontent.com/DannyKang/k8s-Workshop/master/chapter2/kubia-svc.yaml
+$ kubectl create -f kubia-svc.yaml
 
 # svc 확인
 $ kubectl get svc
@@ -122,7 +122,7 @@ spec:
 
 ```bash
 # svc 생성
-$ kubectl create -f https://raw.githubusercontent.com/DannyKang/k8s-Workshop/master/chapter2/kubia-svc-nodeport.yaml
+$ kubectl create -f kubia-svc-nodeport.yaml
 
 # svc 확인
 $ kubectl get svc kubia-nodeport
@@ -175,7 +175,7 @@ spec:
 
 ```bash
 # svc 생성
-$ kubectl create -f https://raw.githubusercontent.com/DannyKang/k8s-Workshop/master/chapter2/kubia-svc-loadbalancer.yaml
+$ kubectl create -f kubia-svc-loadbalancer.yaml
 
 # svc 확인
 $ kubectl get svc kubia-loadbalancer
@@ -190,7 +190,25 @@ You've hit kubia-xueq1
 ![](img/3-5.png)
 
 
-### 3.7 Ingress 
+### 3.7 Ingress & Ingress Controller
+
+인그레스(ingress)는 클러스터 외부에서 내부로 접근하는 요청들을 어떻게 처리할지 정의해둔 규칙들의 모음입니다. 외부에서 접근가능한 URL을 사용할 수 있게 하고, 트래픽 로드밸런싱도 해주고, SSL 인증서 처리도 해주고, 도메인 기반으로 가상 호스팅을 제공하기도 합니다. 인그레스 자체는 이런 규칙들을 정의해둔 자원이고 이런 규칙들을 실제로 동작하게 해주는게 인그레스 컨트롤러(ingress controller)입니다. 
+
+![](img/3-6.png)
+
+![](img/3-7.png)
+
+클라우드 서비스를 사용하게 되면 별다른 설정없이 각 클라우드 서비스에서 자사의 로드밸런서 서비스들과 연동해서 인그레스를 사용할 수 있게 해줍니다. 클라우드 서비스를 사용하지 않고 직접 쿠버네티스 클러스터를 구축해서 사용하는 경우라면 인그레스 컨트롤러를 직접 인그레스와 연동해 주어야 합니다. 이때 가장 많이 사용되는건 쿠버네티스에서 제공하는  ingress-nginx(https://github.com/kubernetes/ingress-nginx) 입니다. 
+
+nginx 인그레스 컨트롤러는 인그레스에 설정된 내용을 nginx 환경설정으로 변경해서 nginx에 적용합니다. 이외에도 다양한 인그레스 컨트롤러가 있습니다. 
+
+
+## Chapter 2 Contents
+ - ### [0. Concept](0-concept.md)
+ - ### [1. POD](1-pod.md)
+ - ### [2. Controller](2-controller.md)
+ - ### [3. Service](3-service.md)
+ - ### [4. Volume](4.volume.md)
 
 
 ### Reference
