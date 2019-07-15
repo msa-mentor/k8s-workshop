@@ -222,6 +222,8 @@ $ kubectl run kubia --image=luksa/kubia --port=8080 --generator=run/v1
 
  - 실행 Pod 확인
 $ kubectl get pod
+```
+
 ![](img/9.png)
 ![](img/10.png)
 
