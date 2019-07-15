@@ -137,11 +137,6 @@ replication-controller Normal SuccessfulCreate Created pod: kubia-oini2
 ![](img/2-3.png)
 
 
-#### 1.3.3 Node 장애
-
-이건 확인이 필요하다. 
-
-
 
 ## 2.2 Pod의 Label 변경
 포드의 라벨을 변경해서 rc의 라벨 셀렉터와 일치하지 않게 되면 포드는 다른 수동으로 만든 포드 처럼 관리하지 않는 포드가 된다. 
