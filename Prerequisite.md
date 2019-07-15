@@ -34,6 +34,30 @@ $ gcloud config list
 $ gcloud info
 
 ```
+
 ![](./chapter1/img/SDK-3.png)
 
+
+
+```shell
+$ gcloud container clusters list 
+
+$ gcloud container clusters get-credentials <name> --region=<region-name>
+```
+![](./chapter1/img/SDK-5.png)
+
+
+```shell
+#클러스터 확인 
+$ kubectl cluster-info
+```
+
+
 ### 참조 : https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu?authuser=2&hl=ko
+
+### 실습 예제 clone
+
+
+```
+$ git clone https://github.com/DannyKang/k8s-Workshop.git
+```
