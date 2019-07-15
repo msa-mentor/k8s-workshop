@@ -230,7 +230,9 @@ $ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
 
 - 서비스 상태 확인 
 처음에 Pend이었다가 External-IP가 할당되는 것을 확인할 수 있다. (계속 "kubectl get svc"를 실행해서 상태 변경확인)
+
 ![](img/12.png)
+
 ![](img/11.png)
 
 ```bash
