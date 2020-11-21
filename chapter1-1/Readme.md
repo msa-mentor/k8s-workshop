@@ -30,11 +30,12 @@ $ kubectl describe node <nodename>
 ```
  - Application 실행
 ```
-$ kubectl run kubia --image=luksa/kubia--port=8080 --generator=run/v1
+$ kubectl run kubia --image=luksa/kubia --port=8080 --generator=run/v1
 ```
-```bash
 
  - 실행 Pod 확인
+ 
+```bash
 $ kubectl get pod
 ```
 
@@ -42,7 +43,9 @@ $ kubectl get pod
 ![](img/10.png)
 
  - 서비스 생성
+```bash
 $ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
+```
 
 - 서비스 상태 확인 
 처음에 Pend이었다가 External-IP가 할당되는 것을 확인할 수 있다. (계속 "kubectl get svc"를 실행해서 상태 변경확인)
